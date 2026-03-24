@@ -19,8 +19,15 @@ namespace InvocePDF.Pages
 
         public IActionResult OnPost()
         {
+            if (!ModelState.IsValid)
+            {
+                var errors = ModelState.Values.SelectMany(v => v.Errors).Select(e => e.ErrorMessage);
+                return Content("Ошибки привязки: " + string.Join("; ", errors));
+            }
+
             var pdf = _pdfService.GenerateAct(Act);
-            return File(pdf, "application/pdf", "act.pdf");
+            return File(pdf, "application/pdf", $"Act_{Act.Date}_{Act.Number}.pdf");
         }
+
     }
 }

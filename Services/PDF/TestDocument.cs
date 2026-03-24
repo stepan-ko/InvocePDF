@@ -1,4 +1,5 @@
-﻿using InvocePDF.Models;
+﻿using System.Globalization;
+using InvocePDF.Models;
 using QuestPDF.Fluent;
 using QuestPDF.Infrastructure;
 
@@ -6,11 +7,11 @@ namespace InvocePDF.Services.PDF
 {
     public class TestDocument : IDocument
     {
-        //private readonly Invoice _invoice;
+        //private readonly Act _act;
 
-        //public TestDocument()
+        //public TestDocument(Act act)
         //{
-        //    _invoice = invoice;
+        //    _act = act;
         //}
 
         public DocumentMetadata GetMetadata() => DocumentMetadata.Default;
@@ -121,7 +122,6 @@ namespace InvocePDF.Services.PDF
                 });
             });
         }
-
 
     }
 }

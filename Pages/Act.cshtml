@@ -1,24 +1,115 @@
 ﻿@page
 @model InvocePDF.Pages.ActModel
-
 @{
-<h2>Генератор акта</h2>
+    ViewData["Title"] = "Генератор Акта";
+}
+@{
+    <h2>Генератор Акта</h2>
 
     <nav style="margin-bottom:20px;">
         <a href="/Invoice" style="font-weight:bold;">Счет</a>
         <a href="/Act">📑 Акт</a>
     </nav>
 
-<form method="post">
-    @Html.AntiForgeryToken()
+    <form method="post" id="actForm">
+        @Html.AntiForgeryToken()
 
-    <input name="Act.ContractorName" placeholder="Исполнитель" /><br />
-    <input name="Act.ContractorInn" placeholder="ИНН" /><br />
-    <input name="Act.ClientName" placeholder="Клиент" /><br />
-    <input name="Act.Service" placeholder="Услуга" /><br />
-    <input name="Act.Amount" type="number" step="0.01" placeholder="Сумма" /><br />
+        <h3>Данные исполнителя</h3>
+        <input name="Act.ContractorName" placeholder="Исполнитель" /><br />
+        <input name="Act.ContractorInn" placeholder="ИНН" /><br />
+        <input name="Act.ContractorAddress" placeholder="Адрес" /><br />
+       
+        <h3>Данные заказчика</h3>
+        <input name="Act.ClientName" placeholder="Заказчик" /><br />
+        <input name="Act.ClientInn" placeholder="ИНН" /><br />
+        <input name="Act.ClientAddress" placeholder="Адрес" /><br />
 
-    <button type="submit">Скачать PDF</button>
-</form>
+        <h3>Основание</h3>
+        <input name="Act.ContractBasis" placeholder="Договор №..." /><br />
+        <!-- <input name="Act.Number" type="hidden" id="actNumber" /> -->
 
+        <h3>Услуги</h3>
+        <table id="itemsTable" border="1" style="border-collapse:collapse; width:100%;">
+            <thead>
+                <tr>
+                    <th>№</th>
+                    <th>Наименование</th>
+                    <th>Кол-во</th>
+                    <th>Ед.</th>
+                    <th>Цена</th>
+                    <th>Действия</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td>1</td>
+                    <td><input name="Act.Items[0].Name" /></td>
+                    <td><input name="Act.Items[0].Quantity" type="number" step="1" /></td>
+                    <td><input name="Act.Items[0].Unit" /></td>
+                    <td>
+                        <input name="Act.Items[0].Price" type="number" step="1" />
+                        <input name="Act.Items[0].Number" type="hidden" value="0" />
+                    </td>                    
+                    <td><button type="button" onclick="removeRow(this)">❌</button></td>
+                    
+                </tr>
+            </tbody>
+        </table>
+        <button type="button" onclick="addRow()">➕ Добавить услугу</button><br /><br />
+
+        <button type="submit">Скачать PDF</button>
+    </form>
+
+    <script>
+        // Автоподставляем номер счета
+                const actNumberField = document.querySelector('#actNumber');
+                if (actNumberField && !actNumberField.value) {
+                    const now = new Date();
+                    actNumberField.value = `Акт-${now.getFullYear()}${(now.getMonth()+1).toString().padStart(2,'0')}${now.getDate().toString().padStart(2,'0')}-${now.getHours()}${now.getMinutes()}`;
+                }
+    
+    
+    let itemIndex = 1; // уже есть 1 строка
+
+        function addRow() {
+            const table = document.getElementById("itemsTable").getElementsByTagName('tbody')[0];
+            const row = table.insertRow();
+
+            row.innerHTML = `
+                <td>${itemIndex + 1}</td>
+                <td><input name="Act.Items[${itemIndex}].Name" /></td>
+                <td><input name="Act.Items[${itemIndex}].Quantity" type="number" step="1"/></td>
+                <td><input name="Act.Items[${itemIndex}].Unit" /></td>
+                <td>
+                    <input name="Act.Items[${itemIndex}].Price" type="number" step="1"/>
+                                <input name="Act.Items[${itemIndex}].Number" type="hidden" value="${itemIndex}" />
+                </td>
+                <td><button type="button" onclick="removeRow(this)">❌</button></td>
+            `;
+            itemIndex++;
+        }
+
+        function removeRow(btn) {
+            const row = btn.parentNode.parentNode;
+            row.parentNode.removeChild(row);
+            updateIndexes();
+        }
+
+        function updateIndexes() {
+            const table = document.getElementById("itemsTable").getElementsByTagName('tbody')[0];
+            const rows = table.rows;
+            itemIndex = 0;
+            for (let i = 0; i < rows.length; i++) {
+                rows[i].cells[0].innerText = i + 1;
+                const inputs = rows[i].getElementsByTagName('input');
+                for (let inp of inputs) {
+                    const nameParts = inp.name.split('.');
+                    if (nameParts[1].startsWith('Items[')) {
+                        inp.name = `Act.Items[${i}].${nameParts[2]}`;
+                    }
+                }
+                itemIndex++;
+            }
+        }
+    </script>
 }

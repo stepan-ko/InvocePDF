@@ -1,0 +1,19 @@
+﻿@page
+@model InvocePDF.Pages.IndexModel
+@{
+    <h2>Генератор счёта</h2>
+
+    <form method="post">
+        @Html.AntiForgeryToken() <!-- ОБЯЗАТЕЛЬНО -->
+
+        <input name="Invoice.SellerName" placeholder="Имя" /><br />
+        <input name="Invoice.SellerInn" placeholder="ИНН" /><br />
+        <input name="Invoice.BuyerName" placeholder="Клиент" /><br />
+        <input name="Invoice.Description" placeholder="Услуга" /><br />
+        <input name="Invoice.Amount" type="number" step="1" placeholder="Сумма" /><br />
+
+        <button type="submit">Скачать PDF</button>
+    </form>
+
+
+}

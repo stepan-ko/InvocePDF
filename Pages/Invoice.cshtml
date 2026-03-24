@@ -1,0 +1,68 @@
+﻿@page
+@model InvocePDF.Pages.InvoiceModel
+@{
+    <h2>Генератор счёта</h2>
+
+
+    <nav style="margin-bottom:20px;">
+        <a href="/Invoice">Счет</a>
+        <a href="/Act" style="font-weight:bold;">📑 Акт</a>
+    </nav>
+
+    <form method="post">
+        @Html.AntiForgeryToken() <!-- ОБЯЗАТЕЛЬНО -->
+
+        <input name="Invoice.SellerName" placeholder="Имя" /><br />
+        <input name="Invoice.SellerInn" placeholder="ИНН" /><br />
+        <input name="Invoice.BuyerName" placeholder="Клиент" /><br />
+        <input name="Invoice.Description" placeholder="Услуга" /><br />
+        <input name="Invoice.Amount" type="number" step="1" placeholder="Сумма" /><br />
+        <input name="Invoice.Date"   type="hidden" id="InvoiceDate" />
+        <input name="Invoice.Number" type="hidden" id="InvoiceNumber" />
+        <button type="submit">Скачать PDF</button>
+        <button type="button" onclick="
+            fields.forEach(f=>
+            localStorage.removeItem(f));
+            form.reset();
+            ">Очистить
+        </button>
+    </form>
+
+    <script>
+        // Получаем элементы формы
+        const form = document.querySelector('form');
+        const fields = ['Invoice.SellerName', 'Invoice.SellerInn', 'Invoice.BuyerName', 'Invoice.Description', 'Invoice.Amount'];
+
+        // Загружаем данные из localStorage при загрузке
+        window.addEventListener('DOMContentLoaded', () => {
+            fields.forEach(name => {
+                const field = document.querySelector(`[name="${name}"]`);
+                if (field && localStorage.getItem(name)) {
+                    field.value = localStorage.getItem(name);
+                }
+            });
+
+            // Автоподставляем дату в отдельное поле (если есть)
+            const dateField = document.querySelector('#InvoiceDate');
+            if (dateField) {
+                const today = new Date().toISOString().split('T')[0]; // yyyy-mm-dd
+                dateField.value = today;
+            }
+
+            // Автоподставляем номер счета
+            const invoiceNumberField = document.querySelector('#InvoiceNumber');
+            if (invoiceNumberField && !invoiceNumberField.value) {
+                const now = new Date();
+                invoiceNumberField.value = `Счет-${now.getFullYear()}${(now.getMonth()+1).toString().padStart(2,'0')}${now.getDate().toString().padStart(2,'0')}-${now.getHours()}${now.getMinutes()}`;
+            }
+        });
+
+        // Сохраняем данные в localStorage при изменении формы
+        form.addEventListener('input', () => {
+            fields.forEach(name => {
+                const field = document.querySelector(`[name="${name}"]`);
+                if (field) localStorage.setItem(name, field.value);
+            });
+        });
+    </script>
+}

@@ -1,0 +1,24 @@
+﻿@page
+@model InvocePDF.Pages.ActModel
+
+@{
+<h2>Генератор акта</h2>
+
+    <nav style="margin-bottom:20px;">
+        <a href="/Invoice" style="font-weight:bold;">Счет</a>
+        <a href="/Act">📑 Акт</a>
+    </nav>
+
+<form method="post">
+    @Html.AntiForgeryToken()
+
+    <input name="Act.ContractorName" placeholder="Исполнитель" /><br />
+    <input name="Act.ContractorInn" placeholder="ИНН" /><br />
+    <input name="Act.ClientName" placeholder="Клиент" /><br />
+    <input name="Act.Service" placeholder="Услуга" /><br />
+    <input name="Act.Amount" type="number" step="0.01" placeholder="Сумма" /><br />
+
+    <button type="submit">Скачать PDF</button>
+</form>
+
+}

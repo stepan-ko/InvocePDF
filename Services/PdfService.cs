@@ -1,5 +1,6 @@
 ﻿using InvocePDF.Models;
 using InvocePDF.Services.Pdf;
+using InvocePDF.Services.PDF;
 using QuestPDF.Fluent;
 using QuestPDF.Helpers;
 using QuestPDF.Infrastructure;
@@ -19,5 +20,12 @@ namespace InvocePDF.Services
             var document = new ActDocument(act);
             return document.GeneratePdf();
         }
+
+        public byte[] GenerateTest()
+        {
+            var document = new TestDocument();
+            return document.GeneratePdf();
+        }
+        
     }
 }

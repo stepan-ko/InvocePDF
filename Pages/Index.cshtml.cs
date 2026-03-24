@@ -28,8 +28,14 @@ namespace InvocePDF.Pages
                 return Content("Ошибка привязки данных формы");
             }
 
-            var pdf = _pdfService.GenerateInvoice(Invoice);
+            //тест
 
+            //var pdfTest = _pdfService.GenerateTest();
+            //return File(pdfTest, "application/pdf", "test.pdf");
+            //
+
+
+            var pdf = _pdfService.GenerateInvoice(Invoice);
             return File(pdf, "application/pdf", "invoice.pdf");
         }
     }

@@ -34,7 +34,7 @@ public class ActDocument : IDocument
                 col.Spacing(10);
 
                 // Заголовок
-                col.Item().AlignCenter().Text($"Акт приема-передачи оказанных услуг № {StaticData.counterNumber} от {_act.Number} г.")
+                col.Item().AlignCenter().Text($"Акт приема-передачи оказанных услуг № {GetActNumber()} от {_act.Number} г.")
                     .FontSize(16).Bold();
 
                 // Номер дата
@@ -116,12 +116,12 @@ public class ActDocument : IDocument
                     // Rows
                     foreach (var item in _act.Items)
                     {
-                        table.Cell().Element(CellStyle).Text(item.Number.ToString());
-                        table.Cell().Element(CellStyle).Text(item.Name);
-                        table.Cell().Element(CellStyle).Text(item.Quantity.ToString("0.##", culture));
-                        table.Cell().Element(CellStyle).Text(item.Unit);
-                        table.Cell().Element(CellStyle).Text(item.Price.ToString("N2", culture));
-                        table.Cell().Element(CellStyle).Text(item.Total.ToString("N2", culture));
+                        table.Cell().Element(CellStyle).Text(item.Number.ToString()).FontSize(10);
+                        table.Cell().Element(CellStyle).Text(item.Name).FontSize(10);
+                        table.Cell().Element(CellStyle).Text(item.Quantity.ToString("0.##", culture)).FontSize(10);
+                        table.Cell().Element(CellStyle).Text(item.Unit).FontSize(10);
+                        table.Cell().Element(CellStyle).Text(item.Price.ToString("N2", culture)).FontSize(10);
+                        table.Cell().Element(CellStyle).Text(item.Total.ToString("N2", culture)).FontSize(10);
                     }
                 });
 
@@ -140,7 +140,7 @@ public class ActDocument : IDocument
                 // Текст
                 col.Item().Text(
                     "Вышеперечисленные услуги выполнены полностью и в срок. Заказчик претензий по объему, качеству и срокам оказания услуг не имеет."
-                );
+                ).FontSize(10);
 
                 // Линия
                 col.Item()
@@ -182,5 +182,13 @@ public class ActDocument : IDocument
         return container.Border(1).Padding(5);
     }
 
-    
+
+    private string GetActNumber()
+    {
+        var service = new DocumentNumberService();        
+        return service.GetNextActNumber();
+    }
+
+
+
 }

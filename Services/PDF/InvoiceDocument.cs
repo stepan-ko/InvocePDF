@@ -26,7 +26,7 @@ namespace InvocePDF.Services.Pdf
                 page.DefaultTextStyle(x => x.FontSize(12));
 
                 page.Header()
-                    .Text("СЧЕТ-ФАКТУРА / АКТ ВЫПОЛНЕННЫХ РАБОТ")
+                    .Text($"СЧЕТ-ФАКТУРА / АКТ ВЫПОЛНЕННЫХ РАБОТ № {GetInvoiceNumber()}")
                     .SemiBold().FontSize(16).AlignCenter();
 
                 page.Content().Column(col =>
@@ -103,7 +103,11 @@ namespace InvocePDF.Services.Pdf
                 .Padding(5);
         }
 
+        private string GetInvoiceNumber()
+        {
+            var service = new DocumentNumberService();
+            return service.GetNextInvoiceNumber();
+        }
 
-       
     }
 }

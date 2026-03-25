@@ -1,8 +1,12 @@
-﻿using System.Globalization;
+﻿using System.Data.Common;
+using System.Globalization;
+using System.Reflection.Emit;
 using InvocePDF.Models;
+using InvocePDF.Services;
 using QuestPDF.Fluent;
 using QuestPDF.Helpers;
 using QuestPDF.Infrastructure;
+using static QuestPDF.Helpers.Colors;
 
 public class ActDocument : IDocument
 {
@@ -19,6 +23,8 @@ public class ActDocument : IDocument
     {
         var culture = new CultureInfo("ru-RU");
 
+        StaticData.counterNumber++;
+
         container.Page(page =>
         {
             page.Margin(40);
@@ -28,27 +34,60 @@ public class ActDocument : IDocument
                 col.Spacing(10);
 
                 // Заголовок
-                col.Item().AlignCenter().Text("Акт приема-передачи оказанных услуг")
+                col.Item().AlignCenter().Text($"Акт приема-передачи оказанных услуг № {StaticData.counterNumber} от {_act.Number} г.")
                     .FontSize(16).Bold();
 
-                col.Item().AlignCenter().Text(
-                    $"№ {_act.Number} от {_act.Date:dd MMMM yyyy} г."
-                );
+                // Номер дата
+                //col.Item().AlignCenter().Text(
+                //    $"№ {StaticData.counterNumber} от {_act.Number} г."
+                //).FontSize(16).Bold();
+
+                // Линия
+                col.Item()
+                    .PaddingVertical(1)
+                    .LineHorizontal(1);
 
                 // Исполнитель
-                col.Item().Text("Исполнитель:").Bold();
-                col.Item().Text(
-                    $"{_act.ContractorName}, ИНН {_act.ContractorInn}, {_act.ContractorAddress}"
-                );
+                col.Item().Row(row =>
+                 {
+                     row.ConstantItem(100) 
+                         .AlignMiddle()
+                         .AlignLeft()                         
+                         .Text("Исполнитель:").FontSize(10);
+
+                     row.RelativeItem()
+                         .AlignMiddle()
+                         .AlignLeft()
+                         .Text($"{_act.ContractorName}, ИНН {_act.ContractorInn}, {_act.ContractorAddress}").Bold().FontSize(11);
+                 });
 
                 // Заказчик
-                col.Item().Text("Заказчик:").Bold();
-                col.Item().Text(
-                    $"{_act.ClientName}, ИНН {_act.ClientInn}, {_act.ClientAddress}"
-                );
+                col.Item().Row(row =>
+                {
+                    row.ConstantItem(100)
+                            .AlignMiddle()
+                            .AlignLeft()
+                            .Text("Заказчик:").FontSize(10);
+
+                    row.RelativeItem()
+                            .AlignMiddle()
+                            .AlignLeft()
+                            .Text($"{_act.ClientName}, ИНН {_act.ClientInn}, {_act.ClientAddress}").Bold().FontSize(11);
+                });
 
                 // Основание
-                col.Item().Text($"Основание: {_act.ContractBasis}");
+                col.Item().Row(row =>
+                {
+                    row.ConstantItem(100)
+                            .AlignMiddle()
+                            .AlignLeft()
+                            .Text("Основание:").FontSize(10);
+
+                    row.RelativeItem()
+                            .AlignMiddle()
+                            .AlignLeft()
+                            .Text(_act.ContractBasis).Bold().FontSize(11);
+                });
 
                 // Таблица
                 col.Item().Table(table =>
@@ -89,36 +128,51 @@ public class ActDocument : IDocument
                 var total = _act.Items.Sum(x => x.Total);
 
                 // Итоги
-                col.Item().AlignRight().Text($"Итого: {total:N2}").Bold();
-
-                col.Item().Text("Без налога (НДС) -");
+                col.Item().AlignRight().Text($"Итого:  {total:N2}").Bold();
+                                
 
                 col.Item().Text(
                     $"Всего оказано услуг {_act.Items.Count}, на сумму {total:N2} руб."
                 );
 
-                col.Item().Text(NumberToWords(total));
+                col.Item().Text(MoneyToText.Convert(total)).Bold().FontSize(12);
 
                 // Текст
                 col.Item().Text(
-                    "Вышеперечисленные услуги выполнены полностью и в срок. Заказчик претензий не имеет."
+                    "Вышеперечисленные услуги выполнены полностью и в срок. Заказчик претензий по объему, качеству и срокам оказания услуг не имеет."
                 );
 
+                // Линия
+                col.Item()
+                    .PaddingVertical(10)
+                    .LineHorizontal(1);
+
                 // Подписи
-                col.Item().PaddingTop(30).Row(row =>
+                col.Item().PaddingTop(10).Row(row =>
                 {
-                    row.RelativeItem().Column(c =>
+                    row.RelativeItem().PaddingRight(5).Column(c =>
                     {
                         c.Item().Text("ИСПОЛНИТЕЛЬ").Bold();
-                        c.Item().Text(_act.ContractorName);
+                        c.Item().PaddingTop(10).Text(_act.ContractorName);
+                        // Линия
+                        c.Item()
+                            .PaddingTop(20)
+                            .LineHorizontal(1);
                     });
 
-                    row.RelativeItem().Column(c =>
+                    row.RelativeItem().PaddingLeft(5).Column(c =>
                     {
                         c.Item().Text("ЗАКАЗЧИК").Bold();
-                        c.Item().Text(_act.ClientName);
+                        c.Item().PaddingTop(10).Text(_act.ClientName);
+                        // Линия
+                        c.Item()
+                            .PaddingTop(20)
+                            .LineHorizontal(1);
                     });
                 });
+
+                
+
             });
         });
     }
@@ -128,9 +182,5 @@ public class ActDocument : IDocument
         return container.Border(1).Padding(5);
     }
 
-    // Упрощённое преобразование числа в текст
-    private string NumberToWords(decimal amount)
-    {
-        return $"{amount:N2} рублей"; // можно улучшить позже
-    }
+    
 }

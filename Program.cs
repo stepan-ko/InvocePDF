@@ -4,6 +4,7 @@ using QuestPDF.Infrastructure;
 var builder = WebApplication.CreateBuilder(args);
 
 
+
 //My
 builder.Services.AddScoped<PdfService>();
 builder.Services.AddRazorPages();

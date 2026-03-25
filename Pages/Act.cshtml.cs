@@ -24,9 +24,9 @@ namespace InvocePDF.Pages
                 var errors = ModelState.Values.SelectMany(v => v.Errors).Select(e => e.ErrorMessage);
                 return Content("Ошибки привязки: " + string.Join("; ", errors));
             }
-
+            
             var pdf = _pdfService.GenerateAct(Act);
-            return File(pdf, "application/pdf", $"Act_{Act.Date}_{Act.Number}.pdf");
+            return File(pdf, "application/pdf", $"Act_{Act.Number}.pdf");
         }
 
     }

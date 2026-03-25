@@ -18,15 +18,17 @@
         <input name="Act.ContractorName" placeholder="Исполнитель" /><br />
         <input name="Act.ContractorInn" placeholder="ИНН" /><br />
         <input name="Act.ContractorAddress" placeholder="Адрес" /><br />
+        <input name="Act.ContractorBank" placeholder="Банковские реквизиты" /><br />
        
         <h3>Данные заказчика</h3>
         <input name="Act.ClientName" placeholder="Заказчик" /><br />
         <input name="Act.ClientInn" placeholder="ИНН" /><br />
         <input name="Act.ClientAddress" placeholder="Адрес" /><br />
+        <input name="Act.ClientBank" placeholder="Банковские реквизиты" /><br />
 
         <h3>Основание</h3>
         <input name="Act.ContractBasis" placeholder="Договор №..." /><br />
-        <!-- <input name="Act.Number" type="hidden" id="actNumber" /> -->
+        <input name="Act.Number" type="hidden" id="actNumber" />
 
         <h3>Услуги</h3>
         <table id="itemsTable" border="1" style="border-collapse:collapse; width:100%;">
@@ -48,24 +50,32 @@
                     <td><input name="Act.Items[0].Unit" /></td>
                     <td>
                         <input name="Act.Items[0].Price" type="number" step="1" />
-                        <input name="Act.Items[0].Number" type="hidden" value="0" />
+                        <input name="Act.Items[0].Number" type="hidden" value="1" />
                     </td>                    
                     <td><button type="button" onclick="removeRow(this)">❌</button></td>
                     
                 </tr>
             </tbody>
         </table>
-        <button type="button" onclick="addRow()">➕ Добавить услугу</button><br /><br />
-
+        <button type="button" onclick="addRow()">➕ Добавить услугу</button>
+        <br />
+        <button type="button" onclick="clearForm()">Очистить</button>
+        <br />
+        <br />
+        <br />
         <button type="submit">Скачать PDF</button>
+        
     </form>
 
     <script>
         // Автоподставляем номер счета
+            const months = ["Января", "Февраля", "Марта", "Апреля", "Мая", "Июня",
+                "Июля", "Августа", "Сентября", "Октября", "Ноября", "Декабря"];
+
                 const actNumberField = document.querySelector('#actNumber');
                 if (actNumberField && !actNumberField.value) {
-                    const now = new Date();
-                    actNumberField.value = `Акт-${now.getFullYear()}${(now.getMonth()+1).toString().padStart(2,'0')}${now.getDate().toString().padStart(2,'0')}-${now.getHours()}${now.getMinutes()}`;
+                        const today = new Date();
+                        actNumberField.value = `${today.getDate()} ${months[today.getMonth()]} ${today.getFullYear()}`;
                 }
     
     
@@ -82,7 +92,7 @@
                 <td><input name="Act.Items[${itemIndex}].Unit" /></td>
                 <td>
                     <input name="Act.Items[${itemIndex}].Price" type="number" step="1"/>
-                                <input name="Act.Items[${itemIndex}].Number" type="hidden" value="${itemIndex}" />
+                                <input name="Act.Items[${itemIndex}].Number" type="hidden" value="${itemIndex+1}" />
                 </td>
                 <td><button type="button" onclick="removeRow(this)">❌</button></td>
             `;
@@ -111,5 +121,53 @@
                 itemIndex++;
             }
         }
+
+         function clearForm() {
+            localStorage.removeItem(storageKey);
+            location.reload();
+        }
+                   const storageKey = "actFormData";
+
+        // Сохранение формы
+        function saveForm() {
+            const form = document.getElementById("actForm");
+            const data = {};
+
+            form.querySelectorAll("input").forEach(input => {
+                if (input.name) {
+                    data[input.name] = input.value;
+                }
+            });
+
+            localStorage.setItem(storageKey, JSON.stringify(data));
+        }
+
+        // Загрузка формы
+        function loadForm() {
+            const saved = localStorage.getItem(storageKey);
+            if (!saved) return;
+
+            const data = JSON.parse(saved);
+
+            Object.keys(data).forEach(name => {
+                const input = document.querySelector(`[name="${name}"]`);
+                if (input) {
+                    input.value = data[name];
+                }
+            });
+        }
+
+        // Автосохранение при вводе
+        document.addEventListener("input", function (e) {
+            if (e.target.closest("#actForm")) {
+                saveForm();
+            }
+        });
+
+        // Загрузка при старте
+        document.addEventListener("DOMContentLoaded", function () {
+            loadForm();
+        });
     </script>
+
 }

@@ -9,9 +9,12 @@
         public string ContractorInn { get; set; }
         public string ContractorAddress { get; set; }
 
+        public string ContractorBank { get; set; }
+
         public string ClientName { get; set; }
         public string ClientInn { get; set; }
         public string ClientAddress { get; set; }
+        public string ClientBank { get; set; }
 
         public string ContractBasis { get; set; }
 

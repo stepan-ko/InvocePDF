@@ -17,6 +17,7 @@ namespace InvocePDF.Services.Pdf
         public DocumentMetadata GetMetadata() => DocumentMetadata.Default;
         public void Compose(IDocumentContainer container)
         {
+            StaticData.counterNumber++;
             container.Page(page =>
             {
                 page.Margin(40);

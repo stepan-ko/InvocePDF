@@ -5,11 +5,15 @@ namespace InvocePDF.Services
 {
     public class DocumentNumberService
     {
-        private readonly string _connectionString = "Data Source=documentNumbers.db";
+        private readonly string _connectionString;
         private static readonly object _lock = new();
 
         public DocumentNumberService()
         {
+            var dataDirectory = Path.Combine(AppContext.BaseDirectory,"data");
+            Directory.CreateDirectory(dataDirectory);
+            _connectionString = $"Data Source={Path.Combine(dataDirectory, "documentNumbers.db")}";
+            
             using var connection = new SqliteConnection(_connectionString);
             connection.Open();
 
